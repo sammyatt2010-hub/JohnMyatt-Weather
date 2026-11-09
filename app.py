@@ -44,30 +44,68 @@ st.set_page_config(page_title=f"{DAD_NAME}'s Weather", page_icon="🪷", layout=
 # ---------------------------------------------------------------------------
 # Styling - big, friendly, easy to read on a phone
 # ---------------------------------------------------------------------------
-st.markdown(
-    """
+# Two Monet palettes: a sunlit pond for light mode, a moonlit pond for dark mode.
+PALETTES = {
+    "light": {
+        "bg": "#f2f5ef", "text": "#23343a", "muted": "rgba(35,52,58,.70)", "heading": "#2f5560",
+        "card": "rgba(255,255,255,.62)", "border": "rgba(94,143,163,.22)", "shadow": "rgba(47,85,96,.10)",
+        "wash": ".40,.28,.35,.35,.22", "warn_bg": "rgba(255,240,228,.80)", "alert_bg": "rgba(255,228,233,.85)",
+        "rain": "#3f7690", "link": "#2f5560",
+    },
+    "dark": {
+        "bg": "#121f24", "text": "#e9efe9", "muted": "rgba(233,239,233,.68)", "heading": "#d9cdf3",
+        "card": "rgba(24,42,48,.72)", "border": "rgba(169,155,209,.22)", "shadow": "rgba(0,0,0,.35)",
+        "wash": ".28,.22,.30,.20,.12", "warn_bg": "rgba(217,144,95,.18)", "alert_bg": "rgba(184,71,94,.22)",
+        "rain": "#8cc3db", "link": "#c9bdf0",
+    },
+}
+
+
+def theme_mode() -> str:
+    try:
+        return "dark" if st.context.theme.type == "dark" else "light"
+    except Exception:
+        return "light"
+
+
+def apply_theme():
+    p = PALETTES[theme_mode()]
+    w = p["wash"].split(",")
+    css = """
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Nunito+Sans:wght@400;600;700&display=swap');
       :root {
-        --pond: #2f5560; --water: #5e8fa3; --lilac: #a99bd1; --lily: #e3a1b5;
-        --pad: #6f9a5b; --sun: #e8c47a; --ink: #23343a;
+        --pond: #2f5560; --water: #5e8fa3; --lilac: #a99bd1; --lily: #e3a1b5; --pad: #6f9a5b;
+        --bg: __BG__; --text: __TEXT__; --muted: __MUTED__; --heading: __HEADING__; --card: __CARD__; --border: __BORDER__;
+        --shadow: __SHADOW__; --warn-bg: __WARNBG__; --alert-bg: __ALERTBG__; --rain: __RAIN__; --link: __LINK__;
       }
       /* An impressionist wash behind everything: lilac sky, green pads, blue water, pink lilies */
       .stApp {
         background:
-          radial-gradient(ellipse 60% 40% at 8% 0%,   rgba(169,155,209,.40), transparent 70%),
-          radial-gradient(ellipse 50% 35% at 92% 6%,  rgba(111,154,91,.28),  transparent 70%),
-          radial-gradient(ellipse 70% 45% at 50% 100%, rgba(94,143,163,.35), transparent 70%),
-          radial-gradient(ellipse 30% 25% at 85% 75%, rgba(227,161,181,.35), transparent 70%),
-          radial-gradient(ellipse 25% 20% at 15% 60%, rgba(232,196,122,.22), transparent 70%),
-          #f2f5ef;
-        background-attachment: fixed;
+          radial-gradient(ellipse 60% 40% at 8% 0%,   rgba(169,155,209,__W0__), transparent 70%),
+          radial-gradient(ellipse 50% 35% at 92% 6%,  rgba(111,154,91,__W1__),  transparent 70%),
+          radial-gradient(ellipse 70% 45% at 50% 100%, rgba(94,143,163,__W2__), transparent 70%),
+          radial-gradient(ellipse 30% 25% at 85% 75%, rgba(227,161,181,__W3__), transparent 70%),
+          radial-gradient(ellipse 25% 20% at 15% 60%, rgba(232,196,122,__W4__), transparent 70%),
+          var(--bg) !important;
+        background-attachment: fixed !important;
+        color: var(--text);
       }
-      .stApp, .stMarkdown p, .stCaption, label {font-family: 'Nunito Sans', sans-serif;}
-      h1, h2, h3, .serif {font-family: 'Cormorant Garamond', Georgia, serif !important; color: var(--pond);}
+      .stApp, .stApp p, .stApp li, .stApp label, .stApp span, .stCaption, .stMarkdown {font-family: 'Nunito Sans', sans-serif;}
+      .stApp p, .stApp li, .stApp label, .stMarkdown, div[data-testid="stMetricValue"] {color: var(--text) !important;}
+      .stCaption, .stCaption p, div[data-testid="stMetricLabel"] p, .muted {color: var(--muted) !important;}
+      .stApp a {color: var(--link) !important;}
+      h1, h2, h3, .serif {font-family: 'Cormorant Garamond', Georgia, serif !important; color: var(--heading) !important;}
       h1 {font-size: 3rem !important; font-weight: 700 !important;}
       h2, h3 {font-weight: 700 !important;}
       .block-container {padding-top: 1.6rem; max-width: 1150px;}
+
+      /* Cards (any st.container with a key starting "card") */
+      [class*="st-key-card"] {
+        background: var(--card); border: 1px solid var(--border); border-radius: 22px;
+        padding: 18px 22px 20px 22px; backdrop-filter: blur(8px); box-shadow: 0 6px 20px var(--shadow);
+      }
+      [class*="st-key-card"] h3 {margin-top: 0 !important; padding-top: 0 !important;}
 
       .hero {
         position: relative; border-radius: 26px; padding: 30px 32px; color: #fff; margin-bottom: 6px;
@@ -75,62 +113,74 @@ st.markdown(
         background-image: var(--hero-overlay), var(--hero-img),
           linear-gradient(135deg, #2f5560 0%, #5e8fa3 45%, #a99bd1 80%, #e3a1b5 100%);
         background-size: cover; background-position: center;
-        box-shadow: 0 10px 30px rgba(47,85,96,.28);
+        box-shadow: 0 10px 30px var(--shadow);
         text-shadow: 0 2px 10px rgba(0,0,0,.45);
         --hero-overlay: linear-gradient(100deg, rgba(25,48,56,.72) 0%, rgba(25,48,56,.38) 55%, rgba(25,48,56,.10) 100%);
       }
       .hero.night {--hero-overlay: linear-gradient(100deg, rgba(12,20,40,.85) 0%, rgba(20,30,60,.65) 60%, rgba(20,30,60,.45) 100%);}
       .hero.wet   {--hero-overlay: linear-gradient(100deg, rgba(40,52,62,.80) 0%, rgba(55,70,82,.55) 60%, rgba(55,70,82,.30) 100%);}
+      .hero, .hero * {color: #fff !important;}
       .hero .place {font-size: 1.05rem; opacity: .95; margin: 0 0 6px 0;}
       .hero .row {display: flex; align-items: center; gap: 24px; flex-wrap: wrap;}
       .hero .emoji {font-size: 5.2rem; line-height: 1;}
       .hero .temp {font-family: 'Cormorant Garamond', Georgia, serif; font-size: 5.4rem; font-weight: 700; line-height: .95;}
       .hero .desc {font-size: 1.5rem; font-weight: 700;}
       .hero .sub  {font-size: 1.08rem;}
-      .backdrop {font-size: .85rem; opacity: .75; margin: 0 0 14px 6px; font-style: italic;}
+      .backdrop {font-size: .85rem; color: var(--muted); margin: 0 0 14px 6px; font-style: italic;}
 
       div[data-testid="stMetric"] {
-        background: rgba(255,255,255,.62); border-radius: 16px; padding: 10px 14px;
-        border: 1px solid rgba(94,143,163,.18); backdrop-filter: blur(6px);
+        background: var(--card); border-radius: 16px; padding: 10px 14px;
+        border: 1px solid var(--border); backdrop-filter: blur(6px);
       }
-      div[data-testid="stMetricValue"] {font-size: 1.7rem; color: var(--ink);}
+      [class*="st-key-card"] div[data-testid="stMetric"] {background: transparent;}
+      div[data-testid="stMetricValue"] {font-size: 1.7rem;}
 
       .tip {
-        border-radius: 14px; padding: 12px 16px; margin: 6px 0; font-size: 1.08rem;
-        background: rgba(255,255,255,.62); border-left: 5px solid var(--pad); backdrop-filter: blur(6px);
+        border-radius: 14px; padding: 12px 16px; margin: 6px 0; font-size: 1.08rem; color: var(--text);
+        background: var(--card); border: 1px solid var(--border); border-left: 5px solid var(--pad);
       }
-      .tip.warn  {border-left-color: #d9905f; background: rgba(255,240,228,.75);}
-      .tip.alert {border-left-color: #b8475e; background: rgba(255,228,233,.80);}
+      .tip.warn  {border-left-color: #d9905f; background: var(--warn-bg);}
+      .tip.alert {border-left-color: #b8475e; background: var(--alert-bg);}
 
       .day {
         display: grid; grid-template-columns: 92px 44px 1fr 150px 110px;
-        align-items: center; gap: 10px; padding: 10px 6px; border-bottom: 1px solid rgba(94,143,163,.20);
-        font-size: 1.05rem;
+        align-items: center; gap: 10px; padding: 10px 6px; border-bottom: 1px solid var(--border);
+        font-size: 1.05rem; color: var(--text);
       }
-      .day .name {font-weight: 700; color: var(--pond);}
+      .day:last-child {border-bottom: none;}
+      .day .name {font-weight: 700; color: var(--heading);}
       .day .ico {font-size: 1.7rem; text-align: center;}
       .bar-wrap {display: flex; align-items: center; gap: 8px;}
-      .bar-track {flex: 1; height: 9px; border-radius: 6px; background: rgba(94,143,163,.18); position: relative;}
+      .bar-track {flex: 1; height: 9px; border-radius: 6px; background: var(--border); position: relative;}
       .bar-fill  {position: absolute; height: 9px; border-radius: 6px;
                   background: linear-gradient(90deg, var(--water), var(--lilac), var(--lily));}
-      .muted {opacity: .7; font-size: .92rem;}
-      .rain {color: var(--water); font-weight: 700;}
+      .muted {font-size: .92rem;}
+      .rain {color: var(--rain); font-weight: 700;}
+      .hour {text-align: center; color: var(--text);}
 
-      button[data-baseweb="tab"] p {font-size: 1.02rem; font-weight: 600;}
       .footer {text-align: center; padding: 8px 0 4px 0;}
       .footer .serif {font-size: 1.35rem; font-style: italic;}
 
       @media (max-width: 640px) {
         h1 {font-size: 2.3rem !important;}
         .hero {padding: 22px 20px;}
+        [class*="st-key-card"] {padding: 14px 14px 16px 14px;}
         .hero .emoji {font-size: 3.6rem;} .hero .temp {font-size: 3.8rem;}
         .day {grid-template-columns: 70px 34px 1fr 92px; font-size: .95rem;}
         .day .wind {display: none;}
       }
     </style>
-    """,
-    unsafe_allow_html=True,
-)
+    """
+    for k, v in {"BG": p["bg"], "TEXT": p["text"], "MUTED": p["muted"], "HEADING": p["heading"],
+                 "CARD": p["card"], "BORDER": p["border"], "SHADOW": p["shadow"], "WARNBG": p["warn_bg"],
+                 "ALERTBG": p["alert_bg"], "RAIN": p["rain"], "LINK": p["link"]}.items():
+        css = css.replace(f"__{k}__", v)
+    for i, v in enumerate(w):
+        css = css.replace(f"__W{i}__", v)
+    st.markdown(css, unsafe_allow_html=True)
+
+
+apply_theme()
 
 # ---------------------------------------------------------------------------
 # Data
@@ -578,14 +628,8 @@ def weather_page():
     today = now_t.date()
     today_row = daily.iloc[0]
 
-    tab_names = ["☀️ Now & today", "⏱️ Next 48 hours", "📅 14-day outlook"]
-    if place.get("coastal"):
-        tab_names.append("🌊 Sea")
-    tab_names.append("🏡 Both homes")
-    tabs = st.tabs(tab_names)
-
     # --- Now & today -----------------------------------------------------------
-    with tabs[0]:
+    if True:
         backdrop = todays_backdrop()
         st.markdown(hero_html(choice, place, current, today_row, backdrop), unsafe_allow_html=True)
         if backdrop:
@@ -606,29 +650,32 @@ def weather_page():
         m[2].metric("🕰️ Daylight", f"{hrs}h {mins}m")
         m[3].metric("😎 UV max", f"{today_row['uv_index_max']:.0f}")
 
-        st.subheader("What to expect")
+    with st.container(key="card_expect"):
+        st.subheader("☀️ What to expect today")
         for css, text in build_tips(place, now_t, hourly, daily, marine):
             st.markdown(f"<div class='{css}'>{text}</div>", unsafe_allow_html=True)
 
-        st.subheader("Rest of today")
+    with st.container(key="card_rest"):
+        st.subheader("🕰️ The next 12 hours")
         rest = hourly[(hourly["time"] >= now_t) & (hourly["time"] < now_t + pd.Timedelta(hours=12))]
         cols = st.columns(6)
         for i, (_, r) in enumerate(rest.iloc[::2].head(6).iterrows()):
             icon, text = describe(r["weather_code"], r["is_day"])
             with cols[i]:
                 st.markdown(
-                    f"<div style='text-align:center'><div class='muted'>{fmt_hour(r['time'])}</div>"
+                    f"<div class='hour'><div class='muted'>{fmt_hour(r['time'])}</div>"
                     f"<div style='font-size:2rem'>{icon}</div><b>{r['temperature_2m']:.0f}°</b>"
                     f"<div class='muted'>💧{r['precipitation_probability']:.0f}%</div></div>",
                     unsafe_allow_html=True,
                 )
 
     # --- Next 48 hours ---------------------------------------------------------
-    with tabs[1]:
+    with st.container(key="card_48h"):
         next48 = hourly[(hourly["time"] >= now_t) & (hourly["time"] < now_t + pd.Timedelta(hours=48))]
-        st.subheader("Temperature & chance of rain")
+        st.subheader("⏱️ Next 48 hours")
+        st.markdown("**Temperature & chance of rain**")
         st.altair_chart(hourly_chart(next48), width="stretch")
-        st.subheader("Wind & gusts")
+        st.markdown("**Wind & gusts**")
         st.altair_chart(wind_chart(next48), width="stretch")
         with st.expander("Hour-by-hour table"):
             table = pd.DataFrame({
@@ -645,16 +692,15 @@ def weather_page():
             st.dataframe(table, hide_index=True, width="stretch")
 
     # --- 14-day outlook --------------------------------------------------------
-    with tabs[2]:
-        st.subheader(f"The fortnight ahead at {choice}")
+    with st.container(key="card_14d"):
+        st.subheader(f"📅 The fortnight ahead at {choice}")
         st.markdown(daily_rows_html(daily, today, 14), unsafe_allow_html=True)
         st.caption("Forecasts beyond about 7 days are a rough guide — check back nearer the time.")
 
     # --- Sea (Salcombe only) ---------------------------------------------------
-    tab_i = 3
     if place.get("coastal"):
-        with tabs[tab_i]:
-            st.subheader("Sea conditions off Salcombe")
+        with st.container(key="card_sea"):
+            st.subheader("🌊 Sea conditions off Salcombe")
             if not marine or not marine.get("hourly"):
                 st.info("Sea data isn't available right now — try again later.")
             else:
@@ -681,11 +727,10 @@ def weather_page():
                 )
                 st.caption("Open-sea waves just off Bolt Head — the estuary itself is usually calmer. "
                            "Always check official tide times and the inshore waters forecast before going out.")
-        tab_i += 1
 
     # --- Both homes ------------------------------------------------------------
-    with tabs[tab_i]:
-        st.subheader("Middle Farm vs Salcombe — the week ahead")
+    with st.container(key="card_both"):
+        st.subheader("🏡 Middle Farm vs Salcombe — the week ahead")
         frames = {}
         cols = st.columns(2)
         for col, (name, p) in zip(cols, LOCATIONS.items()):
@@ -697,14 +742,14 @@ def weather_page():
             frames[name] = dly.head(7).assign(place=name)
             icon, text = describe(cur["weather_code"], cur["is_day"])
             with col:
-                st.markdown(f"### {p['icon']} {name}")
+                st.markdown(f"<h3 class='serif' style='margin:0'>{p['icon']} {name}</h3>", unsafe_allow_html=True)
                 st.metric(f"{icon} {text}", f"{cur['temperature_2m']:.0f}°C",
                           help=f"Feels like {cur['apparent_temperature']:.0f}°C")
                 st.markdown(daily_rows_html(dly, today, 7), unsafe_allow_html=True)
 
         if len(frames) == 2:
             both = pd.concat(frames.values())
-            st.subheader("Daytime highs")
+            st.markdown("**Daytime highs**")
             st.altair_chart(
                 alt.Chart(both).mark_line(point=True, strokeWidth=3)
                 .encode(
@@ -807,8 +852,8 @@ def paintings_page():
                "tap **Full resolution** to open the original image (then save it from there).")
     for i in range(0, len(results), 3):
         cols = st.columns(3)
-        for col, r in zip(cols, results[i:i + 3]):
-            with col.container(border=True):
+        for j, (col, r) in enumerate(zip(cols, results[i:i + 3])):
+            with col.container(key=f"card_result_{i + j}"):
                 st.image(r["thumb"])
                 st.markdown(f"**{r['title']}**")
                 if r["subtitle"]:
