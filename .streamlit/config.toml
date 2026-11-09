@@ -1,0 +1,14 @@
+g · TOML
+# Follows the device's light/dark setting. Each mode gets its own Monet palette.
+[theme.light]
+primaryColor = "#5e8fa3"
+backgroundColor = "#f2f5ef"
+secondaryBackgroundColor = "#e4ebe4"
+textColor = "#23343a"
+ 
+[theme.dark]
+primaryColor = "#a99bd1"
+backgroundColor = "#121f24"
+secondaryBackgroundColor = "#1d3138"
+textColor = "#e9efe9"
+ 
