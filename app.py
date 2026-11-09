@@ -158,6 +158,8 @@ def apply_theme():
       .rain {color: var(--rain); font-weight: 700;}
       .hour {text-align: center; color: var(--text);}
 
+      header[data-testid="stHeader"] {background: transparent !important;}
+      header a[data-testid="stTopNavLink"] p, header a p {font-weight: 700; font-size: 1.02rem;}
       .footer {text-align: center; padding: 8px 0 4px 0;}
       .footer .serif {font-size: 1.35rem; font-style: italic;}
 
@@ -780,10 +782,8 @@ def weather_page():
 
 
 def show_footer():
-    st.markdown("<div class='footer'><span class='serif'>For the studio</span></div>", unsafe_allow_html=True)
-    c = st.columns([1, 2, 2, 1])
-    c[1].page_link(PAINTINGS_PAGE, label="Painting Finder — hi-res images", icon="🖼️", width="stretch")
-    c[2].page_link("https://www.johnmyatt.com", label="johnmyatt.com", icon="🎨", width="stretch")
+    c = st.columns([2, 1, 2])
+    c[1].page_link("https://www.johnmyatt.com", label="johnmyatt.com", icon="🎨", width="stretch")
 
 
 # ---------------------------------------------------------------------------
@@ -807,12 +807,8 @@ def _use_suggestion():
 
 
 def paintings_page():
-    top_l, top_r = st.columns([4, 1], vertical_alignment="bottom")
-    with top_l:
-        st.title("🖼️ Painting Finder")
-        st.caption("High-resolution images of paintings from Wikipedia and Wikimedia Commons.")
-    with top_r:
-        st.page_link(WEATHER_PAGE, label="Back to weather", icon="🪷", width="stretch")
+    st.title("🖼️ Painting Finder")
+    st.caption("High-resolution images of paintings from Wikipedia and Wikimedia Commons.")
 
     st.text_input("Painting or artist", key="painting_query",
                   placeholder="e.g. Monet Impression Sunrise  ·  Turner Rain Steam and Speed")
@@ -871,7 +867,7 @@ def paintings_page():
 
 def show_footer_back():
     st.divider()
-    st.page_link(WEATHER_PAGE, label="Back to the weather", icon="🪷")
+    show_footer()
 
 
 # ---------------------------------------------------------------------------
@@ -879,4 +875,4 @@ def show_footer_back():
 # ---------------------------------------------------------------------------
 WEATHER_PAGE = st.Page(weather_page, title=f"{DAD_NAME}'s Weather", icon="🪷", url_path="weather", default=True)
 PAINTINGS_PAGE = st.Page(paintings_page, title="Painting Finder", icon="🖼️", url_path="paintings")
-st.navigation([WEATHER_PAGE, PAINTINGS_PAGE], position="hidden").run()
+st.navigation([WEATHER_PAGE, PAINTINGS_PAGE], position="top").run()
