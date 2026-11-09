@@ -91,7 +91,7 @@ def apply_theme():
         background-attachment: fixed !important;
         color: var(--text);
       }
-      .stApp, .stApp p, .stApp li, .stApp label, .stApp span, .stCaption, .stMarkdown {font-family: 'Nunito Sans', sans-serif;}
+      .stApp, .stApp p, .stApp li, .stApp label, .stCaption, .stMarkdown {font-family: 'Nunito Sans', sans-serif;}
       .stApp p, .stApp li, .stApp label, .stMarkdown, div[data-testid="stMetricValue"] {color: var(--text) !important;}
       .stCaption, .stCaption p, div[data-testid="stMetricLabel"] p, .muted {color: var(--muted) !important;}
       .stApp a {color: var(--link) !important;}
@@ -119,7 +119,7 @@ def apply_theme():
       }
       .hero.night {--hero-overlay: linear-gradient(100deg, rgba(12,20,40,.85) 0%, rgba(20,30,60,.65) 60%, rgba(20,30,60,.45) 100%);}
       .hero.wet   {--hero-overlay: linear-gradient(100deg, rgba(40,52,62,.80) 0%, rgba(55,70,82,.55) 60%, rgba(55,70,82,.30) 100%);}
-      .hero, .hero * {color: #fff !important;}
+      .stApp .hero, .stApp .hero * {color: #fff !important;}
       .hero .place {font-size: 1.05rem; opacity: .95; margin: 0 0 6px 0;}
       .hero .row {display: flex; align-items: center; gap: 24px; flex-wrap: wrap;}
       .hero .emoji {font-size: 5.2rem; line-height: 1;}
@@ -159,17 +159,59 @@ def apply_theme():
       .hour {text-align: center; color: var(--text);}
 
       header[data-testid="stHeader"] {background: transparent !important;}
-      header a[data-testid="stTopNavLink"] p, header a p {font-weight: 700; font-size: 1.02rem;}
+      /* Tab bar */
+      .st-key-navbar {border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 4px;}
+      .st-key-navbar a {border-radius: 999px !important; padding: 4px 14px !important;
+                        border: 1px solid var(--border); background: var(--card);}
+      .st-key-navbar a p {font-weight: 700 !important; font-size: 1rem !important;}
+      [class*="st-key-navlink_on"] a {
+        background: linear-gradient(135deg, var(--water), var(--lilac)) !important; border-color: transparent !important;}
+      [class*="st-key-navlink_on"] a p {color: #fff !important;}
+      /* Stat tiles */
+      .stats {display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 4px 0 18px 0;}
+      .stat {background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 10px 14px;
+             backdrop-filter: blur(6px);}
+      [class*="st-key-card"] .stat {background: transparent;}
+      .stat .label {font-size: .88rem; color: var(--muted);}
+      .stat .value {font-size: 1.65rem; font-weight: 600; color: var(--text); line-height: 1.25;}
+      .stat .note  {font-size: .8rem; color: var(--muted);}
+
+      /* Swipeable hour strip */
+      .hours {display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 10px 2px;
+              scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;}
+      .hr {flex: 0 0 auto; min-width: 70px; text-align: center; padding: 10px 6px; border-radius: 14px;
+           background: rgba(127,127,127,.06); border: 1px solid var(--border); scroll-snap-align: start; color: var(--text);}
+      .hr .t {font-size: .85rem; color: var(--muted);}
+      .hr .i {font-size: 1.8rem; line-height: 1.3;}
+      .hr .v {font-size: 1.15rem; font-weight: 700;}
+      .hr .r {font-size: .8rem; color: var(--rain); font-weight: 700;}
+      .hr .w {font-size: .78rem; color: var(--muted);}
+
       .footer {text-align: center; padding: 8px 0 4px 0;}
       .footer .serif {font-size: 1.35rem; font-style: italic;}
 
       @media (max-width: 640px) {
-        h1 {font-size: 2.3rem !important;}
-        .hero {padding: 22px 20px;}
-        [class*="st-key-card"] {padding: 14px 14px 16px 14px;}
-        .hero .emoji {font-size: 3.6rem;} .hero .temp {font-size: 3.8rem;}
-        .day {grid-template-columns: 70px 34px 1fr 92px; font-size: .95rem;}
+        .block-container {padding: 2.6rem .7rem 2rem .7rem !important;}
+        h1 {font-size: 2.1rem !important; line-height: 1.1 !important; padding-bottom: 0 !important;}
+        h3 {font-size: 1.45rem !important;}
+        .hero {padding: 18px 18px; border-radius: 20px;}
+        .hero .place {font-size: .9rem;}
+        .hero .row {gap: 10px 16px;}
+        .hero .emoji {font-size: 3.4rem;}
+        .hero .temp {font-size: 3.9rem;}
+        .hero .desc {font-size: 1.2rem;}
+        .hero .sub {flex-basis: 100%; font-size: .98rem; padding-top: 6px;
+                    border-top: 1px solid rgba(255,255,255,.25);}
+        .stats {grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;}
+        .stat {padding: 8px 12px;}
+        .stat .value {font-size: 1.35rem;}
+        [class*="st-key-card"] {padding: 14px 12px 14px 12px; border-radius: 18px;}
+        .tip {font-size: 1rem; padding: 10px 12px;}
+        .day {grid-template-columns: 74px 30px 1fr 64px; gap: 6px; font-size: .95rem; padding: 9px 2px;}
+        .day .ico {font-size: 1.4rem;}
         .day .wind {display: none;}
+        .day .rain-mm {display: none;}
+        .backdrop {font-size: .78rem;}
       }
     </style>
     """
@@ -501,7 +543,9 @@ def hourly_chart(df: pd.DataFrame) -> alt.Chart:
     df = df.copy()
     df["label"] = df["time"].dt.strftime("%a %H:%M")
     df["rain_chance"] = df["precipitation_probability"].fillna(0)
-    base = alt.Chart(df).encode(alt.X("time:T", title=None, axis=alt.Axis(format="%a %Hh", labelAngle=0, tickCount=8)))
+    mob = is_mobile()
+    axis = alt.Axis(format="%a %Hh" if not mob else "%Hh", labelAngle=0, tickCount=4 if mob else 8, labelOverlap=True)
+    base = alt.Chart(df).encode(alt.X("time:T", title=None, axis=axis))
     bars = base.mark_bar(opacity=0.35, color="#5e8fa3", width=6).encode(
         alt.Y("rain_chance:Q", title="Chance of rain (%)", scale=alt.Scale(domain=[0, 100])),
         tooltip=[alt.Tooltip("label:N", title="Time"), alt.Tooltip("rain_chance:Q", title="Rain chance %"),
@@ -513,24 +557,26 @@ def hourly_chart(df: pd.DataFrame) -> alt.Chart:
                  alt.Tooltip("temperature_2m:Q", title="Temp °C", format=".1f"),
                  alt.Tooltip("apparent_temperature:Q", title="Feels like °C", format=".1f")],
     )
-    return alt.layer(bars, line).resolve_scale(y="independent").properties(height=320)
+    return alt.layer(bars, line).resolve_scale(y="independent").properties(height=230 if mob else 320)
 
 
 def wind_chart(df: pd.DataFrame) -> alt.Chart:
+    mob = is_mobile()
     long = df.melt(id_vars="time", value_vars=["wind_speed_10m", "wind_gusts_10m"], var_name="kind", value_name="mph")
     long["kind"] = long["kind"].map({"wind_speed_10m": "Wind", "wind_gusts_10m": "Gusts"})
     return (
         alt.Chart(long)
         .mark_line(strokeWidth=2.5, interpolate="monotone")
         .encode(
-            alt.X("time:T", title=None, axis=alt.Axis(format="%a %Hh", labelAngle=0, tickCount=8)),
+            alt.X("time:T", title=None, axis=alt.Axis(format="%Hh" if mob else "%a %Hh", labelAngle=0,
+                                                    tickCount=4 if mob else 8, labelOverlap=True)),
             alt.Y("mph:Q", title="mph"),
             alt.Color("kind:N", title=None, scale=alt.Scale(domain=["Wind", "Gusts"], range=["#4f7d3e", "#a99bd1"]),
                       legend=alt.Legend(orient="top")),
             tooltip=[alt.Tooltip("time:T", title="Time", format="%a %H:%M"), "kind:N",
                      alt.Tooltip("mph:Q", format=".0f")],
         )
-        .properties(height=240)
+        .properties(height=190 if mob else 240)
     )
 
 
@@ -547,19 +593,57 @@ def daily_rows_html(daily: pd.DataFrame, today: dt.date, days: int) -> str:
         rain_pct = 0 if pd.isna(rain_pct) else rain_pct
         rain = f"<span class='rain'>💧 {rain_pct:.0f}%</span>" if rain_pct >= 20 else "<span class='muted'>dry</span>"
         if r["precipitation_sum"] >= 0.5:
-            rain += f" <span class='muted'>{r['precipitation_sum']:.0f}mm</span>"
+            rain += f" <span class='muted rain-mm'>{r['precipitation_sum']:.0f}mm</span>"
         rows.append(
             f"<div class='day' title='{text}'>"
             f"<div class='name'>{day_name(r['time'], today)}</div>"
             f"<div class='ico'>{icon}</div>"
-            f"<div class='bar-wrap'><span class='muted'>{r['temperature_2m_min']:.0f}°</span>"
+            f"<div class='bar-wrap'><span class='muted'>{t0(r['temperature_2m_min'])}°</span>"
             f"<div class='bar-track'><div class='bar-fill' style='left:{left:.0f}%;width:{width:.0f}%'></div></div>"
-            f"<b>{r['temperature_2m_max']:.0f}°</b></div>"
+            f"<b>{t0(r['temperature_2m_max'])}°</b></div>"
             f"<div>{rain}</div>"
             f"<div class='wind muted'>💨 {r['wind_speed_10m_max']:.0f} mph {compass(r['wind_direction_10m_dominant'])}</div>"
             f"</div>"
         )
     return "".join(rows)
+
+
+def t0(x) -> str:
+    """Whole-degree temperature without a '-0'."""
+    return f"{round(float(x)) + 0:.0f}"
+
+
+def is_mobile() -> bool:
+    """Best guess from the browser's user agent, used to size charts for phones."""
+    try:
+        ua = st.context.headers.get("User-Agent", "") or ""
+    except Exception:
+        return False
+    return any(k in ua for k in ("Mobi", "Android", "iPhone", "iPad"))
+
+
+def stats_html(items: list[tuple[str, str, str]]) -> str:
+    """Tiles laid out 4-across on a computer and 2-across on a phone. items = (label, value, note)."""
+    tiles = "".join(
+        f"<div class='stat'><div class='label'>{label}</div><div class='value'>{value}</div>"
+        + (f"<div class='note'>{note}</div>" if note else "") + "</div>"
+        for label, value, note in items
+    )
+    return f"<div class='stats'>{tiles}</div>"
+
+
+def hours_strip_html(rows: pd.DataFrame) -> str:
+    """A swipeable strip of hourly forecasts."""
+    cells = []
+    for _, r in rows.iterrows():
+        icon, text = describe(r["weather_code"], r["is_day"])
+        rain = f"💧{r['precipitation_probability']:.0f}%" if r["precipitation_probability"] >= 10 else "&nbsp;"
+        cells.append(
+            f"<div class='hr' title='{text}'><div class='t'>{fmt_hour(r['time'])}</div>"
+            f"<div class='i'>{icon}</div><div class='v'>{t0(r['temperature_2m'])}°</div>"
+            f"<div class='r'>{rain}</div><div class='w'>💨{r['wind_speed_10m']:.0f}</div></div>"
+        )
+    return f"<div class='hours'>{''.join(cells)}</div>"
 
 
 def hero_html(name: str, place: dict, current: dict, today_row, backdrop: dict | None) -> str:
@@ -576,12 +660,12 @@ def hero_html(name: str, place: dict, current: dict, today_row, backdrop: dict |
       <div class="row">
         <div class="emoji">{icon}</div>
         <div>
-          <div class="temp">{current['temperature_2m']:.0f}°C</div>
+          <div class="temp">{t0(current['temperature_2m'])}°C</div>
           <div class="desc">{text}</div>
         </div>
         <div class="sub">
-          Feels like <b>{current['apparent_temperature']:.0f}°C</b><br>
-          Today: high <b>{today_row['temperature_2m_max']:.0f}°</b> · low <b>{today_row['temperature_2m_min']:.0f}°</b><br>
+          Feels like <b>{t0(current['apparent_temperature'])}°C</b><br>
+          Today: high <b>{t0(today_row['temperature_2m_max'])}°</b> · low <b>{t0(today_row['temperature_2m_min'])}°</b><br>
           Wind {current['wind_speed_10m']:.0f} mph from the {compass(current['wind_direction_10m'])}
           ({beaufort(current['wind_speed_10m']).lower()})
         </div>
@@ -597,22 +681,20 @@ def weather_page():
     hello_hour = dt.datetime.now().hour  # server time is UTC; close enough for a greeting
     greeting = "Good morning" if hello_hour < 12 else "Good afternoon" if hello_hour < 18 else "Good evening"
 
-    top_l, top_r = st.columns([4, 1], vertical_alignment="bottom")
-    with top_l:
-        st.title(f"🪷 {DAD_NAME}'s Weather")
-        st.caption(f"{greeting}, {DAD_NAME}! Genuine forecasts for Middle Farm and Salcombe — no fakes here 😉")
-    with top_r:
-        if st.button("🔄 Refresh", width="stretch"):
+    st.title(f"🪷 {DAD_NAME}'s Weather")
+    st.caption(f"{greeting}, {DAD_NAME}! Genuine forecasts for Middle Farm and Salcombe — no fakes here 😉")
+
+    with st.container(horizontal=True, vertical_alignment="center", gap="small"):
+        choice = st.segmented_control(
+            "Which home?",
+            options=list(LOCATIONS.keys()),
+            format_func=lambda k: f"{LOCATIONS[k]['icon']} {k}",
+            default="Middle Farm",
+            label_visibility="collapsed",
+        )
+        if st.button("🔄", help="Refresh the forecast"):
             st.cache_data.clear()
             st.rerun()
-
-    choice = st.segmented_control(
-        "Which home?",
-        options=list(LOCATIONS.keys()),
-        format_func=lambda k: f"{LOCATIONS[k]['icon']} {k}",
-        default="Middle Farm",
-        label_visibility="collapsed",
-    )
     choice = choice or "Middle Farm"
     place = LOCATIONS[choice]
 
@@ -637,20 +719,18 @@ def weather_page():
         if backdrop:
             st.markdown(f"<div class='backdrop'>Today's backdrop: <a href='{backdrop['url']}' target='_blank'>{backdrop['title']}</a> — Claude Monet</div>", unsafe_allow_html=True)
 
-        m = st.columns(4)
-        m[0].metric("💨 Gusts", f"{current['wind_gusts_10m']:.0f} mph")
-        m[1].metric("💧 Rain chance today", f"{(today_row['precipitation_probability_max'] or 0):.0f}%",
-                    help=f"{today_row['precipitation_sum']:.1f} mm expected today")
-        m[2].metric("💦 Humidity", f"{current['relative_humidity_2m']:.0f}%")
-        m[3].metric("🧭 Pressure", f"{current['pressure_msl']:.0f} hPa")
-
-        m = st.columns(4)
-        m[0].metric("🌅 Sunrise", today_row["sunrise"].strftime("%H:%M"))
-        m[1].metric("🌇 Sunset", today_row["sunset"].strftime("%H:%M"))
         daylight = today_row["sunset"] - today_row["sunrise"]
         hrs, mins = divmod(int(daylight.total_seconds() // 60), 60)
-        m[2].metric("🕰️ Daylight", f"{hrs}h {mins}m")
-        m[3].metric("😎 UV max", f"{today_row['uv_index_max']:.0f}")
+        st.markdown(stats_html([
+            ("💨 Gusts", f"{current['wind_gusts_10m']:.0f} mph", beaufort(current["wind_gusts_10m"])),
+            ("💧 Rain today", f"{today_row['precipitation_probability_max']:.0f}%", f"{today_row['precipitation_sum']:.1f} mm"),
+            ("💦 Humidity", f"{current['relative_humidity_2m']:.0f}%", ""),
+            ("🧭 Pressure", f"{current['pressure_msl']:.0f}", "hPa"),
+            ("🌅 Sunrise", today_row["sunrise"].strftime("%H:%M"), ""),
+            ("🌇 Sunset", today_row["sunset"].strftime("%H:%M"), ""),
+            ("🕰️ Daylight", f"{hrs}h {mins}m", ""),
+            ("😎 UV max", f"{today_row['uv_index_max']:.0f}", ""),
+        ]), unsafe_allow_html=True)
 
     with st.container(key="card_expect"):
         st.subheader("☀️ What to expect today")
@@ -658,18 +738,10 @@ def weather_page():
             st.markdown(f"<div class='{css}'>{text}</div>", unsafe_allow_html=True)
 
     with st.container(key="card_rest"):
-        st.subheader("🕰️ The next 12 hours")
-        rest = hourly[(hourly["time"] >= now_t) & (hourly["time"] < now_t + pd.Timedelta(hours=12))]
-        cols = st.columns(6)
-        for i, (_, r) in enumerate(rest.iloc[::2].head(6).iterrows()):
-            icon, text = describe(r["weather_code"], r["is_day"])
-            with cols[i]:
-                st.markdown(
-                    f"<div class='hour'><div class='muted'>{fmt_hour(r['time'])}</div>"
-                    f"<div style='font-size:2rem'>{icon}</div><b>{r['temperature_2m']:.0f}°</b>"
-                    f"<div class='muted'>💧{r['precipitation_probability']:.0f}%</div></div>",
-                    unsafe_allow_html=True,
-                )
+        st.subheader("🕰️ Hour by hour")
+        rest = hourly[(hourly["time"] >= now_t) & (hourly["time"] < now_t + pd.Timedelta(hours=24))]
+        st.markdown(hours_strip_html(rest), unsafe_allow_html=True)
+        st.caption("Swipe sideways for the next 24 hours · 💨 wind in mph")
 
     # --- Next 48 hours ---------------------------------------------------------
     with st.container(key="card_48h"):
@@ -711,11 +783,12 @@ def weather_page():
                 nowrow = mh[mh["time"] >= now_t].head(1)
                 if not nowrow.empty:
                     r = nowrow.iloc[0]
-                    c = st.columns(3)
-                    c[0].metric("🌊 Waves now", f"{r['wave_height']:.1f} m" if pd.notna(r["wave_height"]) else "–")
-                    c[1].metric("⏲️ Wave period", f"{r['wave_period']:.0f} s" if pd.notna(r["wave_period"]) else "–")
                     sst = r.get("sea_surface_temperature")
-                    c[2].metric("🌡️ Sea temperature", f"{sst:.1f}°C" if pd.notna(sst) else "–")
+                    st.markdown(stats_html([
+                        ("🌊 Waves now", f"{r['wave_height']:.1f} m" if pd.notna(r["wave_height"]) else "–", ""),
+                        ("⏲️ Wave period", f"{r['wave_period']:.0f} s" if pd.notna(r["wave_period"]) else "–", ""),
+                        ("🌡️ Sea temp", f"{sst:.1f}°C" if pd.notna(sst) else "–", ""),
+                    ]), unsafe_allow_html=True)
                 seven = mh[mh["time"] >= now_t]
                 st.altair_chart(
                     alt.Chart(seven).mark_area(opacity=0.5, color="#5e8fa3", line={"color": "#2f5560"}, interpolate="monotone")
@@ -724,7 +797,7 @@ def weather_page():
                         alt.Y("wave_height:Q", title="Wave height (m)"),
                         tooltip=[alt.Tooltip("time:T", format="%a %H:%M", title="Time"),
                                  alt.Tooltip("wave_height:Q", format=".1f", title="Waves (m)")],
-                    ).properties(height=260),
+                    ).properties(height=200 if is_mobile() else 260),
                     width="stretch",
                 )
                 st.caption("Open-sea waves just off Bolt Head — the estuary itself is usually calmer. "
@@ -745,7 +818,7 @@ def weather_page():
             icon, text = describe(cur["weather_code"], cur["is_day"])
             with col:
                 st.markdown(f"<h3 class='serif' style='margin:0'>{p['icon']} {name}</h3>", unsafe_allow_html=True)
-                st.metric(f"{icon} {text}", f"{cur['temperature_2m']:.0f}°C",
+                st.metric(f"{icon} {text}", f"{t0(cur['temperature_2m'])}°C",
                           help=f"Feels like {cur['apparent_temperature']:.0f}°C")
                 st.markdown(daily_rows_html(dly, today, 7), unsafe_allow_html=True)
 
@@ -761,7 +834,7 @@ def weather_page():
                               legend=alt.Legend(orient="top")),
                     tooltip=["place:N", alt.Tooltip("time:T", format="%A %d %b", title="Day"),
                              alt.Tooltip("temperature_2m_max:Q", format=".0f", title="High °C")],
-                ).properties(height=260),
+                ).properties(height=200 if is_mobile() else 260),
                 width="stretch",
             )
             warmer = (frames["Salcombe"]["temperature_2m_max"].mean()
@@ -816,11 +889,11 @@ def paintings_page():
 
     c1, c2 = st.columns([2, 1])
     source = c1.segmented_control(
-        "Search", ["Wikipedia articles", "Wikimedia Commons (more versions)"],
-        default="Wikimedia Commons (more versions)",
+        "Search", ["Wikipedia", "Commons (more versions)"],
+        default="Commons (more versions)",
         help="Commons usually has several scans of each painting, often at very high resolution. "
              "Wikipedia gives the main image from each article.",
-    ) or "Wikimedia Commons (more versions)"
+    ) or "Commons (more versions)"
     min_label = c2.selectbox("Minimum size (longest side)", ["Any", "1,000 px", "2,000 px", "4,000 px", "6,000 px"], index=2,
                              disabled=source.startswith("Wikipedia"))
     min_px = 0 if min_label == "Any" else int(min_label.split()[0].replace(",", ""))
@@ -875,4 +948,10 @@ def show_footer_back():
 # ---------------------------------------------------------------------------
 WEATHER_PAGE = st.Page(weather_page, title=f"{DAD_NAME}'s Weather", icon="🪷", url_path="weather", default=True)
 PAINTINGS_PAGE = st.Page(paintings_page, title="Painting Finder", icon="🖼️", url_path="paintings")
-st.navigation([WEATHER_PAGE, PAINTINGS_PAGE], position="top").run()
+nav = st.navigation([WEATHER_PAGE, PAINTINGS_PAGE], position="hidden")
+with st.container(horizontal=True, gap="small", key="navbar"):
+    for page in (WEATHER_PAGE, PAINTINGS_PAGE):
+        state = "on" if page.url_path == nav.url_path else "off"
+        with st.container(key=f"navlink_{state}_{page.url_path or 'home'}", width="content"):
+            st.page_link(page, label=page.title, icon=page.icon, width="content")
+nav.run()
